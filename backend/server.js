@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -17,12 +18,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../homepage')));
+// Serve static frontend files (support both ../homepage and project root)
+const projectRoot = path.join(__dirname, '..');
+const homepageDir = path.join(projectRoot, 'homepage');
+const staticDir = fs.existsSync(path.join(homepageDir, 'login.html')) ? homepageDir : projectRoot;
+app.use(express.static(staticDir));
 
-// Root route -> login page (so users don't open via file://)
+// Root route -> login page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../homepage/login.html'));
+  res.sendFile(path.join(staticDir, 'login.html'));
 });
 
 // JWT Authentication Middleware
