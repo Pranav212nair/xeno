@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Xeno – Marketing Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <script>
+    // Check authentication
+    const token = localStorage.getItem('xenoToken');
+    const user = JSON.parse(localStorage.getItem('xenoUser') || 'null');
+    if (!token || !user) {
+      window.location.href = 'login.html';
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('xenoTheme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+  <!-- Top Nav -->
+  <header class="nav">
+    <div class="nav-left">
+      <div class="logo">Xeno</div>
+      <nav class="nav-links">
+        <a href="#" onclick="showPage('dashboard'); return false;" class="active" data-page="dashboard">Dashboard</a>
+        <a href="#" onclick="showPage('campaigns'); return false;" data-page="campaigns">Campaigns</a>
+        <a href="#" onclick="showPage('journeys'); return false;" data-page="journeys">Journeys</a>
+        <a href="#" onclick="showPage('segments'); return false;" data-page="segments">Segments</a>
+        <a href="#" onclick="showPage('loyalty'); return false;" data-page="loyalty">Loyalty</a>
+        <a href="#" onclick="showPage('analytics'); return false;" data-page="analytics">Analytics</a>
+      </nav>
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <span class="theme-icon">🌙</span>
+      </button>
+      <span class="tenant-badge" id="tenantName">ACME Retail</span>
+      <div class="user-menu" id="userMenu">
+        <div class="avatar" id="userAvatar" onclick="toggleUserMenu(event)">M</div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dropdown-item" id="userName">User</div>
+          <div class="dropdown-item" id="userEmail">user@example.com</div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout-btn" onclick="handleLogout(); return false;">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="page" id="page-dashboard">
+    <!-- Page header -->
+    <section class="page-header">
+      <div>
+        <h1>Marketing Overview</h1>
+        <p class="subtitle">
+          See how your campaigns and customers are performing today, and what to do next.
+        </p>
+      </div>
+      <div class="header-actions">
+        <select id="timeRange" class="select" onchange="filterByDateRange(this.value)">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">This month</option>
+          <option value="180">Last quarter</option>
+        </select>
+        <button class="btn primary" onclick="openCampaignModal()">+ Create Campaign</button>
+      </div>
+    </section>
+
+    <!-- KPI snapshot -->
+    <section class="section">
+      <h2>Business Health Snapshot</h2>
+      <div class="kpi-grid">
+        <article class="card kpi">
+          <div class="kpi-label">Revenue Influenced</div>
+          <div class="kpi-value">₹24,30,000</div>
+          <div class="kpi-trend positive">+18% vs last month</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Active Campaigns</div>
+          <div class="kpi-value">8</div>
+          <div class="kpi-trend neutral">3 above target</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Repeat Customer Rate</div>
+          <div class="kpi-value">42%</div>
+          <div class="kpi-trend positive">+5% vs last month</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Loyalty Engagement</div>
+          <div class="kpi-value">61%</div>
+          <div class="kpi-trend positive">Points usage growing</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Customer Growth</div>
+          <div class="kpi-value">+3,240</div>
+          <div class="kpi-trend neutral">Net new customers</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Top Performing Channel</div>
+          <div class="kpi-value">WhatsApp</div>
+          <div class="kpi-trend neutral">4.3% CTR today</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Two-column layout -->
+    <div class="layout-2col section">
+      <!-- LEFT -->
+      <div class="col">
+        <!-- Recommended actions -->
+        <section>
+          <div class="section-header">
+            <h2>Recommended Actions</h2>
+            <span class="caption">AI suggestions based on your data</span>
+          </div>
+          <div class="stack">
+            <article class="card rec">
+              <h3>Win-back at-risk customers</h3>
+              <p>
+                7,850 high-value customers haven't purchased in the last 30 days but opened
+                a recent campaign.
+              </p>
+              <p class="impact">Estimated +₹3–5L revenue in the next 14 days.</p>
+              <button class="btn secondary" onclick="createQuickCampaign('Win-back', 'At-Risk Customers')">Create Win-back Campaign</button>
+            </article>
+
+            <article class="card rec">
+              <h3>Remind members about expiring loyalty points</h3>
+              <p>
+                3,120 loyalty members have points expiring in the next 7 days. A reminder
+                can drive urgent purchases.
+              </p>
+              <p class="impact">Increase repeat orders and program engagement.</p>
+              <button class="btn secondary" onclick="createQuickCampaign('Loyalty Points Reminder', 'Loyalty Members')">Launch Points Reminder</button>
+            </article>
+
+            <article class="card rec">
+              <h3>Upsell to high-spending customers</h3>
+              <p>
+                2,050 customers with AOV &gt; ₹3,000 responded well to your last catalog
+                campaign.
+              </p>
+              <p class="impact">Increase AOV with a curated upsell campaign.</p>
+              <button class="btn secondary" onclick="createQuickCampaign('VIP Upsell', 'High-Value VIPs')">Build Upsell Journey</button>
+            </article>
+          </div>
+        </section>
+
+        <!-- Campaign performance -->
+        <section class="mt">
+          <div class="section-header">
+            <h2>Campaign Performance</h2>
+            <button class="link-btn" onclick="showPage('campaigns')">View all campaigns →</button>
+          </div>
+
+          <!-- Simple mini "chart" -->
+          <article class="card mini-chart">
+            <div class="mini-chart-header">
+              <span>Last 7 days: Revenue vs Spend</span>
+              <span class="pill">Sample data</span>
+            </div>
+            <div class="mini-chart-bars">
+              <div class="bar revenue"></div>
+              <div class="bar spend"></div>
+            </div>
+            <div class="mini-chart-legend">
+              <span><span class="dot revenue"></span>Revenue influenced</span>
+              <span><span class="dot spend"></span>Channel spend</span>
+            </div>
+          </article>
+
+          <!-- Campaign table -->
+          <article class="card table-card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Campaign</th>
+                  <th>Status</th>
+                  <th>Revenue</th>
+                  <th>ROI</th>
+                  <th>CTR</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Weekend Flash Sale – WhatsApp</td>
+                  <td><span class="status success">Live</span></td>
+                  <td>₹8,40,000</td>
+                  <td>4.2x</td>
+                  <td>5.1%</td>
+                </tr>
+                <tr>
+                  <td>New Arrivals – Email</td>
+                  <td><span class="status neutral">Completed</span></td>
+                  <td>₹4,10,000</td>
+                  <td>3.1x</td>
+                  <td>2.6%</td>
+                </tr>
+                <tr>
+                  <td>Loyalty Points Reminder – SMS</td>
+                  <td><span class="status success">Live</span></td>
+                  <td>₹2,20,000</td>
+                  <td>2.4x</td>
+                  <td>3.9%</td>
+                </tr>
+                <tr>
+                  <td>Dormant Customers Reactivation – Push</td>
+                  <td><span class="status danger">Underperforming</span></td>
+                  <td>₹65,000</td>
+                  <td>1.1x</td>
+                  <td>0.8%</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </section>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="col">
+        <!-- Customer lifecycle -->
+        <section>
+          <div class="section-header">
+            <h2>Customer Lifecycle</h2>
+            <button class="link-btn" onclick="showPage('segments')">Open segments →</button>
+          </div>
+          <article class="card lifecycle-card">
+            <div class="lifecycle-row">
+              <div class="lifecycle-head">
+                <span>New</span>
+                <span class="muted">12,400 customers</span>
+              </div>
+              <div class="lifecycle-bar">
+                <div class="fill" style="width:25%"></div>
+              </div>
+            </div>
+            <div class="lifecycle-row">
+              <div class="lifecycle-head">
+                <span>Active</span>
+                <span class="muted">21,300 customers</span>
+              </div>
+              <div class="lifecycle-bar">
+                <div class="fill" style="width:43%"></div>
+              </div>
+            </div>
+            <div class="lifecycle-row">
+              <div class="lifecycle-head">
+                <span>At Risk</span>
+                <span class="muted">9,150 customers</span>
+              </div>
+              <div class="lifecycle-bar">
+                <div class="fill risk" style="width:18%"></div>
+              </div>
+            </div>
+            <div class="lifecycle-row">
+              <div class="lifecycle-head">
+                <span>Churned</span>
+                <span class="muted">6,800 customers</span>
+              </div>
+              <div class="lifecycle-bar">
+                <div class="fill churn" style="width:14%"></div>
+              </div>
+            </div>
+
+            <button class="btn secondary mt-small" onclick="createQuickCampaign('At-Risk Recovery', 'At-Risk Customers')">Target At-Risk Customers</button>
+          </article>
+        </section>
+
+        <!-- Quick actions -->
+        <section class="mt">
+          <h2>Quick Actions</h2>
+          <article class="card">
+            <div class="qa-grid">
+              <button class="qa-btn" onclick="openCampaignModal()">Create Campaign</button>
+              <button class="qa-btn" onclick="createSegment()">Create Segment</button>
+              <button class="qa-btn" onclick="buildJourney()">Build Journey</button>
+              <button class="qa-btn" onclick="uploadCustomerList()">Upload Customer List</button>
+              <button class="qa-btn" onclick="designOffer()">Design Offer</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- Alerts -->
+        <section class="mt">
+          <div class="section-header">
+            <h2>Alerts &amp; Notifications</h2>
+            <button class="link-btn" onclick="viewAllAlerts()">View all →</button>
+          </div>
+          <article class="card alerts">
+            <div class="alert">
+              <span class="pill critical">Critical</span>
+              <div>
+                <p>SMS wallet balance is below the threshold. Some campaigns may stop sending.</p>
+                <button class="link-btn small" onclick="topUpWallet()">Top up now</button>
+              </div>
+            </div>
+            <div class="alert">
+              <span class="pill warning">Warning</span>
+              <div>
+                <p>2 active campaigns have CTR below your target for the last 3 days.</p>
+                <button class="link-btn small" onclick="showPage('campaigns')">Review &amp; optimize</button>
+              </div>
+            </div>
+            <div class="alert">
+              <span class="pill info">Info</span>
+              <div>
+                <p>New WhatsApp template approved and ready to use.</p>
+                <button class="link-btn small" onclick="viewTemplate()">View template</button>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- CAMPAIGNS PAGE -->
+  <main class="page" id="page-campaigns" style="display:none;">
+    <section class="page-header">
+      <div>
+        <h1>Campaigns</h1>
+        <p class="subtitle">Manage and track all your marketing campaigns</p>
+      </div>
+      <div class="header-actions">
+        <input type="text" id="campaignSearch" class="search-input" placeholder="Search campaigns..." onkeyup="filterCampaigns()" />
+        <button class="btn primary" onclick="openCampaignModal()">+ Create Campaign</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card table-card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Campaign Name</th>
+              <th>Channel</th>
+              <th>Status</th>
+              <th>Revenue</th>
+              <th>ROI</th>
+              <th>CTR</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="campaignsTableBody">
+            <!-- Populated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- JOURNEYS PAGE -->
+  <main class="page" id="page-journeys" style="display:none;">
+    <section class="page-header">
+      <div>
+        <h1>Customer Journeys</h1>
+        <p class="subtitle">Automated multi-step customer engagement flows</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn primary" onclick="buildJourney()">+ Create Journey</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="journey-grid" id="journeysGrid">
+        <!-- Populated by JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- SEGMENTS PAGE -->
+  <main class="page" id="page-segments" style="display:none;">
+    <section class="page-header">
+      <div>
+        <h1>Customer Segments</h1>
+        <p class="subtitle">Target specific customer groups with precision</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn primary" onclick="createSegment()">+ Create Segment</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Lifecycle Segments</h2>
+      <div class="kpi-grid" id="lifecycleSegments">
+        <!-- Populated by JavaScript -->
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Custom Segments</h2>
+      <div class="segment-grid" id="customSegments">
+        <!-- Populated by JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- LOYALTY PAGE -->
+  <main class="page" id="page-loyalty" style="display:none;">
+    <section class="page-header">
+      <div>
+        <h1>Loyalty Program</h1>
+        <p class="subtitle">Manage rewards, points, and member engagement</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn primary" onclick="openLoyaltySettings()">Program Settings</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Program Overview</h2>
+      <div class="kpi-grid" id="loyaltyStats">
+        <!-- Populated by JavaScript -->
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Recent Activity</h2>
+      <div class="card">
+        <div class="empty-state">
+          <p>Loyalty activity tracking coming soon</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ANALYTICS PAGE -->
+  <main class="page" id="page-analytics" style="display:none;">
+    <section class="page-header">
+      <div>
+        <h1>Analytics</h1>
+        <p class="subtitle">Deep insights into campaign and customer performance</p>
+      </div>
+      <div class="header-actions">
+        <select class="select">
+          <option>Last 7 days</option>
+          <option selected>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>This year</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Campaign Performance Overview</h2>
+      <div class="kpi-grid" id="analyticsKPIs">
+        <!-- Populated by JavaScript -->
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="layout-2col">
+        <div class="col">
+          <h2>Top Performing Campaigns</h2>
+          <article class="card">
+            <div id="topCampaignsChart" style="min-height: 250px;">
+              <!-- Populated by JavaScript -->
+            </div>
+          </article>
+        </div>
+        <div class="col">
+          <h2>Channel Performance</h2>
+          <article class="card">
+            <div id="channelPerformanceChart" style="min-height: 250px;">
+              <!-- Populated by JavaScript -->
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Customer Engagement Trends</h2>
+      <article class="card">
+        <div id="engagementTrendChart" style="min-height: 300px; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+          <p style="font-size: 48px; margin: 0;">📊</p>
+          <p style="margin: 16px 0 0;">Engagement trends visualization</p>
+          <p style="font-size: 13px; margin: 8px 0 0;">Data for the selected time period</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- CREATE CAMPAIGN MODAL -->
+  <div id="campaignModal" class="modal" style="display:none;" onclick="closeModalOnBackdrop(event, 'campaignModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="campaignModalTitle">Create New Campaign</h2>
+        <button class="modal-close" onclick="closeCampaignModal()">&times;</button>
+      </div>
+      <form onsubmit="saveCampaign(event)">
+        <input type="hidden" id="campaignId" />
+        <div class="form-group">
+          <label>Campaign Name</label>
+          <input type="text" id="campaignName" class="form-input" required placeholder="e.g., Summer Sale 2025" />
+        </div>
+        <div class="form-group">
+          <label>Channel</label>
+          <select id="campaignChannel" class="form-input" required>
+            <option value="">Select channel</option>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Email">Email</option>
+            <option value="SMS">SMS</option>
+            <option value="Push">Push Notification</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Expected Budget (₹)</label>
+          <input type="number" id="campaignBudget" class="form-input" required placeholder="50000" />
+        </div>
+        <div class="form-group">
+          <label>Target Segment</label>
+          <select id="campaignSegment" class="form-input" required>
+            <option value="">Select segment</option>
+            <option value="All Customers">All Customers</option>
+            <option value="High-Value VIPs">High-Value VIPs</option>
+            <option value="At-Risk Customers">At-Risk Customers</option>
+            <option value="Email Engaged">Email Engaged</option>
+            <option value="Loyalty Members">Loyalty Members</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary" onclick="closeCampaignModal()">Cancel</button>
+          <button type="submit" class="btn primary" id="campaignSubmitBtn">Create Campaign</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let currentDateFilter = 30; // Default to 30 days
+    let dashboardData = null;
+    const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+    if (location.protocol === 'file:') {
+      const warn = document.createElement('div');
+      warn.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;padding:12px 16px;background:#fff4e5;border:1px solid #f2c97d;border-radius:8px;color:#8a6d3b;box-shadow:0 4px 12px rgba(0,0,0,0.08);z-index:9999;font-size:14px;';
+      warn.innerHTML = 'You opened this page via file://. Open <b>http://localhost:3000/index.html</b> to avoid API errors.';
+      document.body.appendChild(warn);
+    }
+
+    // API helper function
+    async function apiCall(endpoint, options = {}) {
+      const token = localStorage.getItem('xenoToken');
+      
+      if (!token) {
+        window.location.href = 'login.html';
+        return null;
+      }
+
+      const defaultOptions = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+          ...defaultOptions,
+          ...options,
+          headers: { ...defaultOptions.headers, ...options.headers }
+        });
+
+        if (response.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem('xenoToken');
+          localStorage.removeItem('xenoUser');
+          window.location.href = 'login.html';
+          return null;
+        }
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'API request failed');
+        }
+
+        return data;
+      } catch (error) {
+        console.error('API Error:', error);
+        showNotification(error.message, 'error');
+        return null;
+      }
+    }
+
+    // Simple notification helper
+    function showNotification(message, type = 'info') {
+      console.log(`[${type.toUpperCase()}]`, message);
+      // TODO: Implement toast notification UI
+    }
+
+    // Load data from API
+    async function loadData() {
+      try {
+        const data = await apiCall(`/api/dashboard/stats?days=${currentDateFilter}`);
+        if (data) {
+          dashboardData = data;
+          return data;
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+      return null;
+    }
+
+    // Save data to localStorage (deprecated - keeping for compatibility)
+    function saveData(data) {
+      // Data is now stored in backend, this is a no-op
+      console.log('Data automatically synced to backend');
+    }
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('xenoTheme', newTheme);
+      
+      const icon = document.querySelector('.theme-icon');
+      icon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+      
+      showToast(`Switched to ${newTheme} mode`);
+    }
+
+    // Initialize theme icon
+    function initTheme() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      const icon = document.querySelector('.theme-icon');
+      if (icon) {
+        icon.textContent = theme === 'light' ? '🌙' : '☀️';
+      }
+    }
+
+    // Toast notification
+    function showToast(message, duration = 3000) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    // Filter by date range
+    function filterByDateRange(days) {
+      currentDateFilter = parseInt(days);
+      const data = loadData();
+      
+      // Apply multiplier based on timeframe
+      const multipliers = {
+        7: 0.3,
+        30: 1.0,
+        90: 2.8,
+        180: 5.2
+      };
+      
+      const mult = multipliers[days] || 1.0;
+      
+      // Adjust KPIs
+      data.kpis.revenueInfluenced = Math.floor(2430000 * mult);
+      data.kpis.activeCampaigns = Math.floor(8 * Math.min(mult, 1.5));
+      data.kpis.customerGrowth = Math.floor(3240 * mult);
+      
+      // Adjust lifecycle numbers
+      data.lifecycle.new = Math.floor(12400 * mult);
+      data.lifecycle.active = Math.floor(21300 * mult);
+      data.lifecycle.atRisk = Math.floor(9150 * mult);
+      data.lifecycle.churned = Math.floor(6800 * mult);
+      
+      // Adjust campaign revenues
+      data.campaigns.forEach(c => {
+        const baseRevenue = c.id === 1 ? 840000 : c.id === 2 ? 410000 : c.id === 3 ? 220000 : 65000;
+        c.revenue = Math.floor(baseRevenue * mult);
+      });
+      
+      saveData(data);
+      showToast(`Showing data for last ${days} days`);
+      refreshDashboard();
+      
+      // If on analytics page, refresh it
+      const currentPage = document.querySelector('.nav-links a.active')?.dataset.page;
+      if (currentPage === 'analytics') {
+        refreshAnalytics();
+      }
+    }
+
+    // Close modal on backdrop click
+    function closeModalOnBackdrop(event, modalId) {
+      if (event.target.id === modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }
+    }
+
+    // Show specific page
+    function showPage(pageName) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+      });
+
+      // Show selected page
+      document.getElementById('page-' + pageName).style.display = 'block';
+
+      // Update nav active state
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active');
+      });
+      document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+
+      // Refresh page data
+      if (pageName === 'dashboard') refreshDashboard();
+      if (pageName === 'campaigns') refreshCampaigns();
+      if (pageName === 'journeys') refreshJourneys();
+      if (pageName === 'segments') refreshSegments();
+      if (pageName === 'loyalty') refreshLoyalty();
+      if (pageName === 'analytics') refreshAnalytics();
+    }
+
+    // Refresh dashboard with latest data
+    async function refreshDashboard() {
+      const data = await loadData();
+      if (!data) return;
+      
+      // Update KPIs
+      document.querySelector('.kpi-value').textContent = `₹${(data.kpis.revenueInfluenced / 100000).toFixed(2)}L`;
+      document.querySelectorAll('.kpi-value')[1].textContent = data.kpis.activeCampaigns;
+      
+      // Update campaign table
+      const tbody = document.querySelector('#page-dashboard .table tbody');
+      tbody.innerHTML = data.campaigns.slice(0, 4).map(c => `
+        <tr>
+          <td>${c.name}</td>
+          <td><span class="status ${c.status === 'live' || c.status === 'Live' ? 'success' : c.status === 'underperforming' || c.status === 'Underperforming' ? 'danger' : 'neutral'}">${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</span></td>
+          <td>₹${(c.revenue / 100000).toFixed(2)}L</td>
+          <td>${c.roi}x</td>
+          <td>${c.ctr}%</td>
+        </tr>
+      `).join('');
+
+      // Update lifecycle
+      const lifecycleRows = document.querySelectorAll('.lifecycle-row');
+      if (lifecycleRows.length >= 4) {
+        lifecycleRows[0].querySelector('.muted').textContent = `${(data.lifecycle.new || 0).toLocaleString('en-IN')} customers`;
+        lifecycleRows[1].querySelector('.muted').textContent = `${(data.lifecycle.active || 0).toLocaleString('en-IN')} customers`;
+        lifecycleRows[2].querySelector('.muted').textContent = `${(data.lifecycle.at_risk || data.lifecycle.atRisk || 0).toLocaleString('en-IN')} customers`;
+        lifecycleRows[3].querySelector('.muted').textContent = `${(data.lifecycle.churned || 0).toLocaleString('en-IN')} customers`;
+      }
+    }
+
+    // Refresh campaigns page
+    async function refreshCampaigns() {
+      const data = await loadData();
+      if (!data) return;
+      
+      const tbody = document.getElementById('campaignsTableBody');
+      tbody.innerHTML = data.campaigns.map(c => `
+        <tr>
+          <td>${c.name}</td>
+          <td><span class="pill">${c.channel}</span></td>
+          <td><span class="status ${c.status === 'live' || c.status === 'Live' ? 'success' : c.status === 'underperforming' || c.status === 'Underperforming' ? 'danger' : 'neutral'}">${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</span></td>
+          <td>₹${(c.revenue / 100000).toFixed(2)}L</td>
+          <td>${c.roi}x</td>
+          <td>${c.ctr}%</td>
+          <td>
+            <button class="link-btn small" onclick="editCampaign('${c.id}')">Edit</button>
+            <button class="link-btn small" onclick="deleteCampaign('${c.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Filter campaigns
+    function filterCampaigns() {
+      const searchTerm = document.getElementById('campaignSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#campaignsTableBody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    }
+
+    // Refresh journeys page
+    async function refreshJourneys() {
+      const data = await loadData();
+      if (!data) return;
+      
+      const grid = document.getElementById('journeysGrid');
+      grid.innerHTML = data.journeys.map(j => `
+        <article class="card journey-card">
+          <div class="journey-header">
+            <h3>${j.name}</h3>
+            <span class="status ${j.status === 'active' || j.status === 'Active' ? 'success' : 'neutral'}">${j.status.charAt(0).toUpperCase() + j.status.slice(1)}</span>
+          </div>
+          <div class="journey-stats">
+            <div class="stat">
+              <div class="stat-value">${(j.enrolledCount || j.customers || 0).toLocaleString('en-IN')}</div>
+              <div class="stat-label">Customers Enrolled</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">${j.conversionRate || j.conversions || 0}%</div>
+              <div class="stat-label">Conversion Rate</div>
+            </div>
+          </div>
+          <button class="btn secondary" onclick="viewJourney('${j.id}')">View Journey</button>
+        </article>
+      `).join('');
+    }
+
+    // Refresh segments page
+    async function refreshSegments() {
+      const data = await loadData();
+      if (!data) return;
+      
+      // Lifecycle segments
+      const lifecycleGrid = document.getElementById('lifecycleSegments');
+      lifecycleGrid.innerHTML = `
+        <article class="card kpi">
+          <div class="kpi-label">New Customers</div>
+          <div class="kpi-value">${(data.lifecycle.new || 0).toLocaleString('en-IN')}</div>
+          <div class="kpi-trend neutral">Last 30 days</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Active Customers</div>
+          <div class="kpi-value">${(data.lifecycle.active || 0).toLocaleString('en-IN')}</div>
+          <div class="kpi-trend positive">Engaged regularly</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">At-Risk Customers</div>
+          <div class="kpi-value">${(data.lifecycle.at_risk || data.lifecycle.atRisk || 0).toLocaleString('en-IN')}</div>
+          <div class="kpi-trend neutral">Need attention</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Churned Customers</div>
+          <div class="kpi-value">${(data.lifecycle.churned || 0).toLocaleString('en-IN')}</div>
+          <div class="kpi-trend neutral">Recovery opportunity</div>
+        </article>
+      `;
+
+      // Custom segments
+      const customGrid = document.getElementById('customSegments');
+      customGrid.innerHTML = data.segments.map(s => `
+        <article class="card segment-card">
+          <h3>${s.name}</h3>
+          <p class="segment-desc">${s.description}</p>
+          <div class="segment-count">${(s.customerCount || s.count || 0).toLocaleString('en-IN')} customers</div>
+          <button class="btn secondary" onclick="targetSegment('${s.name}')">Target Segment</button>
+        </article>
+      `).join('');
+    }
+
+    // Refresh loyalty page
+    function refreshLoyalty() {
+      const data = loadData();
+      const statsGrid = document.getElementById('loyaltyStats');
+      statsGrid.innerHTML = `
+        <article class="card kpi">
+          <div class="kpi-label">Total Members</div>
+          <div class="kpi-value">${data.loyaltyStats.totalMembers.toLocaleString('en-IN')}</div>
+          <div class="kpi-trend positive">Active program</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Points Issued</div>
+          <div class="kpi-value">${(data.loyaltyStats.pointsIssued / 1000000).toFixed(2)}M</div>
+          <div class="kpi-trend neutral">Lifetime total</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Points Redeemed</div>
+          <div class="kpi-value">${(data.loyaltyStats.pointsRedeemed / 1000000).toFixed(2)}M</div>
+          <div class="kpi-trend neutral">Total redeemed</div>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Redemption Rate</div>
+          <div class="kpi-value">${data.loyaltyStats.redemptionRate}%</div>
+          <div class="kpi-trend positive">High engagement</div>
+        </article>
+      `;
+    }
+
+    // Campaign modal functions
+    function openCampaignModal() {
+      document.getElementById('campaignModal').style.display = 'flex';
+    }
+
+    function closeCampaignModal() {
+      document.getElementById('campaignModal').style.display = 'none';
+      document.getElementById('campaignId').value = '';
+      document.getElementById('campaignName').value = '';
+      document.getElementById('campaignChannel').value = '';
+      document.getElementById('campaignBudget').value = '';
+      document.getElementById('campaignSegment').value = '';
+      document.getElementById('campaignModalTitle').textContent = 'Create New Campaign';
+      document.getElementById('campaignSubmitBtn').textContent = 'Create Campaign';
+    }
+
+    function saveCampaign(event) {
+      event.preventDefault();
+      
+      const data = loadData();
+      const campaignId = document.getElementById('campaignId').value;
+      const name = document.getElementById('campaignName').value;
+      const channel = document.getElementById('campaignChannel').value;
+      
+      if (campaignId) {
+        // Edit existing campaign
+        const campaign = data.campaigns.find(c => c.id === parseInt(campaignId));
+        if (campaign) {
+          campaign.name = name + ' – ' + channel;
+          campaign.channel = channel;
+          showToast('Campaign updated successfully! ✅');
+        }
+      } else {
+        // Create new campaign
+        const newCampaign = {
+          id: Date.now(),
+          name: name + ' – ' + channel,
+          status: 'Live',
+          revenue: Math.floor(Math.random() * 500000) + 50000,
+          roi: (Math.random() * 3 + 1).toFixed(1),
+          ctr: (Math.random() * 5 + 0.5).toFixed(1),
+          channel: channel
+        };
+        
+        data.campaigns.unshift(newCampaign);
+        showToast('Campaign created successfully! 🎉');
+      }
+      
+      data.kpis.activeCampaigns = data.campaigns.filter(c => c.status === 'Live').length;
+      data.kpis.revenueInfluenced = data.campaigns.reduce((sum, c) => sum + c.revenue, 0);
+      
+      saveData(data);
+      closeCampaignModal();
+      
+      // Refresh current page
+      const currentPage = document.querySelector('.nav-links a.active').dataset.page;
+      if (currentPage === 'campaigns') {
+        refreshCampaigns();
+      } else {
+        refreshDashboard();
+      }
+    }
+
+    // Quick campaign creation
+    function createQuickCampaign(type, segment) {
+      document.getElementById('campaignName').value = type;
+      document.getElementById('campaignSegment').value = segment;
+      openCampaignModal();
+    }
+
+    function deleteCampaign(id) {
+      if (!confirm('Are you sure you want to delete this campaign?')) return;
+      
+      const data = loadData();
+      data.campaigns = data.campaigns.filter(c => c.id !== id);
+      data.kpis.activeCampaigns = data.campaigns.filter(c => c.status === 'Live').length;
+      data.kpis.revenueInfluenced = data.campaigns.reduce((sum, c) => sum + c.revenue, 0);
+      
+      saveData(data);
+      refreshCampaigns();
+      showToast('Campaign deleted successfully 🗑️');
+    }
+
+    // Additional Quick Action functions
+    function createSegment() {
+      showToast('Opening segment builder...');
+      setTimeout(() => showPage('segments'), 500);
+    }
+
+    function buildJourney() {
+      showToast('Opening journey builder...');
+      setTimeout(() => showPage('journeys'), 500);
+    }
+
+    function uploadCustomerList() {
+      showToast('File upload feature coming soon!');
+    }
+
+    function designOffer() {
+      showToast('Offer designer coming soon!');
+    }
+
+    function topUpWallet() {
+      showToast('Redirecting to payment gateway...');
+    }
+
+    function viewAllAlerts() {
+      showToast('Viewing all notifications');
+    }
+
+    function viewTemplate() {
+      showToast('Opening WhatsApp template viewer');
+    }
+
+    function openLoyaltySettings() {
+      showToast('Opening loyalty program settings...');
+    }
+
+    // View journey details
+    function viewJourney(id) {
+      const data = loadData();
+      const journey = data.journeys.find(j => j.id === id);
+      if (journey) {
+        showToast(`Opening ${journey.name} journey builder...`);
+        setTimeout(() => {
+          alert(`Journey: ${journey.name}\n\nStatus: ${journey.status}\nEnrolled: ${journey.customers.toLocaleString('en-IN')} customers\nConversion: ${journey.conversions}%\n\nJourney builder coming soon!`);
+        }, 300);
+      }
+    }
+
+    // Target segment
+    function targetSegment(segmentName) {
+      document.getElementById('campaignName').value = `${segmentName} Campaign`;
+      document.getElementById('campaignSegment').value = segmentName;
+      openCampaignModal();
+      showToast(`Creating campaign for ${segmentName}`);
+    }
+
+    // Refresh analytics page
+    function refreshAnalytics() {
+      const data = loadData();
+      
+      // Analytics KPIs
+      const analyticsKPIs = document.getElementById('analyticsKPIs');
+      if (analyticsKPIs) {
+        const totalRevenue = data.campaigns.reduce((sum, c) => sum + c.revenue, 0);
+        const avgROI = (data.campaigns.reduce((sum, c) => sum + parseFloat(c.roi), 0) / data.campaigns.length).toFixed(1);
+        const avgCTR = (data.campaigns.reduce((sum, c) => sum + parseFloat(c.ctr), 0) / data.campaigns.length).toFixed(1);
+        const totalCustomers = data.lifecycle.new + data.lifecycle.active + data.lifecycle.atRisk + data.lifecycle.churned;
+        
+        analyticsKPIs.innerHTML = `
+          <article class="card kpi">
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">₹${(totalRevenue / 100000).toFixed(2)}L</div>
+            <div class="kpi-trend positive">All campaigns combined</div>
+          </article>
+          <article class="card kpi">
+            <div class="kpi-label">Average ROI</div>
+            <div class="kpi-value">${avgROI}x</div>
+            <div class="kpi-trend neutral">Across all channels</div>
+          </article>
+          <article class="card kpi">
+            <div class="kpi-label">Average CTR</div>
+            <div class="kpi-value">${avgCTR}%</div>
+            <div class="kpi-trend neutral">Campaign engagement</div>
+          </article>
+          <article class="card kpi">
+            <div class="kpi-label">Total Customers</div>
+            <div class="kpi-value">${totalCustomers.toLocaleString('en-IN')}</div>
+            <div class="kpi-trend positive">Active database</div>
+          </article>
+        `;
+      }
+      
+      // Top campaigns chart
+      const topCampaigns = document.getElementById('topCampaignsChart');
+      if (topCampaigns) {
+        const sortedCampaigns = [...data.campaigns].sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+        const maxRevenue = sortedCampaigns[0].revenue;
+        
+        topCampaigns.innerHTML = sortedCampaigns.map(c => {
+          const width = (c.revenue / maxRevenue) * 100;
+          return `
+            <div style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px;">
+                <span>${c.name}</span>
+                <span style="font-weight: 600; color: var(--primary);">₹${(c.revenue / 100000).toFixed(2)}L</span>
+              </div>
+              <div style="width: 100%; height: 12px; background: var(--border); border-radius: 6px; overflow: hidden;">
+                <div style="width: ${width}%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); transition: width 0.5s ease;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // Channel performance
+      const channelChart = document.getElementById('channelPerformanceChart');
+      if (channelChart) {
+        const channelData = {};
+        data.campaigns.forEach(c => {
+          if (!channelData[c.channel]) {
+            channelData[c.channel] = { revenue: 0, count: 0 };
+          }
+          channelData[c.channel].revenue += c.revenue;
+          channelData[c.channel].count += 1;
+        });
+        
+        const channels = Object.entries(channelData).map(([name, data]) => ({
+          name,
+          revenue: data.revenue,
+          avg: data.revenue / data.count
+        })).sort((a, b) => b.revenue - a.revenue);
+        
+        const maxRev = channels[0].revenue;
+        
+        channelChart.innerHTML = channels.map(ch => {
+          const width = (ch.revenue / maxRev) * 100;
+          const emoji = ch.name === 'WhatsApp' ? '💬' : ch.name === 'Email' ? '📧' : ch.name === 'SMS' ? '📱' : '🔔';
+          return `
+            <div style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px;">
+                <span>${emoji} ${ch.name}</span>
+                <span style="font-weight: 600; color: var(--success);">₹${(ch.revenue / 100000).toFixed(2)}L</span>
+              </div>
+              <div style="width: 100%; height: 12px; background: var(--border); border-radius: 6px; overflow: hidden;">
+                <div style="width: ${width}%; height: 100%; background: linear-gradient(90deg, var(--success), #10b981); transition: width 0.5s ease;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function editCampaign(id) {
+      const data = loadData();
+      const campaign = data.campaigns.find(c => c.id === id);
+      
+      if (!campaign) return;
+      
+      // Extract name without channel suffix
+      const nameParts = campaign.name.split(' – ');
+      const baseName = nameParts[0];
+      
+      // Populate form
+      document.getElementById('campaignId').value = campaign.id;
+      document.getElementById('campaignName').value = baseName;
+      document.getElementById('campaignChannel').value = campaign.channel;
+      document.getElementById('campaignBudget').value = '50000';
+      document.getElementById('campaignSegment').value = 'All Customers';
+      
+      // Update modal title and button
+      document.getElementById('campaignModalTitle').textContent = 'Edit Campaign';
+      document.getElementById('saveCampaignBtn').textContent = 'Update Campaign';
+      
+      openCampaignModal();
+    }
+
+    function handleLogout() {
+      console.log('Logout clicked');
+      const confirmed = confirm('Are you sure you want to logout?');
+      if (confirmed) {
+        console.log('Logout confirmed');
+        localStorage.removeItem('xenoToken');
+        localStorage.removeItem('xenoUser');
+        localStorage.removeItem('xenoRemember');
+        window.location.href = 'login.html';
+      }
+      return false;
+    }
+
+    function toggleUserMenu(event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown) {
+        const isShown = dropdown.classList.contains('show');
+        console.log('Toggle menu, currently shown:', isShown);
+        dropdown.classList.toggle('show');
+      }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const userMenu = document.getElementById('userMenu');
+      const dropdown = document.getElementById('userDropdown');
+      
+      if (!userMenu || !dropdown) return;
+      
+      // If clicking outside the menu, close it
+      if (!userMenu.contains(event.target)) {
+        if (dropdown.classList.contains('show')) {
+          console.log('Closing dropdown - clicked outside');
+          dropdown.classList.remove('show');
+        }
+      }
+    });
+
+    // Initialize user display
+    function initUserDisplay() {
+      console.log('Initializing user display...');
+      const userStr = localStorage.getItem('xenoUser');
+      console.log('User data from storage:', userStr);
+      
+      const user = JSON.parse(userStr || 'null');
+      console.log('Parsed user:', user);
+      
+      if (user) {
+        const userNameEl = document.getElementById('userName');
+        const userEmailEl = document.getElementById('userEmail');
+        const userAvatarEl = document.getElementById('userAvatar');
+        const tenantNameEl = document.getElementById('tenantName');
+        
+        console.log('Elements found:', {
+          userName: !!userNameEl,
+          userEmail: !!userEmailEl,
+          userAvatar: !!userAvatarEl,
+          tenantName: !!tenantNameEl
+        });
+        
+        if (userNameEl) {
+          userNameEl.textContent = user.name || 'User';
+          console.log('Set name to:', user.name);
+        }
+        if (userEmailEl) {
+          userEmailEl.textContent = user.email || '';
+          console.log('Set email to:', user.email);
+        }
+        if (userAvatarEl) {
+          const initial = (user.name || 'M')[0].toUpperCase();
+          userAvatarEl.textContent = initial;
+          console.log('Set avatar to:', initial);
+        }
+        
+        if (user.company && tenantNameEl) {
+          tenantNameEl.textContent = user.company;
+          console.log('Set company to:', user.company);
+        }
+      } else {
+        console.log('No user found in localStorage');
+      }
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded');
+      initTheme();
+      initUserDisplay();
+      refreshDashboard();
+    });
+  </script>
+</body>
+</html>

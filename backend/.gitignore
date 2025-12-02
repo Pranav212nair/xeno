@@ -1,0 +1,12 @@
+node_modules/
+database.json
+.env
+*.log
+.DS_Store
+
+# Prisma
+prisma/migrations/
+.env.local
+*.log
+.env
+.DS_Store

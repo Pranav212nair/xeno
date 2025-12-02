@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up - Xeno Marketing Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <!-- Left Side - Branding -->
+    <div class="auth-left">
+      <div class="branding">
+        <h1 class="brand-logo">Xeno</h1>
+        <p class="brand-tagline">Intelligent Marketing Platform</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">⚡</span>
+            <div>
+              <h3>Get Started in Minutes</h3>
+              <p>No credit card required for trial</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🛡️</span>
+            <div>
+              <h3>Enterprise Security</h3>
+              <p>Bank-level encryption for your data</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">💬</span>
+            <div>
+              <h3>24/7 Support</h3>
+              <p>Our team is here to help you succeed</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Signup Form -->
+    <div class="auth-right">
+      <div class="theme-toggle-container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+
+      <div class="auth-form-container">
+        <div class="auth-header">
+          <h2>Create your account</h2>
+          <p>Start your 14-day free trial, no credit card needed</p>
+        </div>
+
+        <form id="signupForm" onsubmit="handleSignup(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First name</label>
+              <input 
+                type="text" 
+                id="firstName" 
+                class="form-input" 
+                placeholder="John" 
+                required 
+                autofocus 
+              />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last name</label>
+              <input 
+                type="text" 
+                id="lastName" 
+                class="form-input" 
+                placeholder="Doe" 
+                required 
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="company">Company name</label>
+            <input 
+              type="text" 
+              id="company" 
+              class="form-input" 
+              placeholder="ACME Retail" 
+              required 
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Work email</label>
+            <input 
+              type="email" 
+              id="email" 
+              class="form-input" 
+              placeholder="name@company.com" 
+              required 
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              placeholder="At least 8 characters" 
+              minlength="8"
+              required 
+            />
+            <div class="password-strength" id="passwordStrength"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="terms" required />
+              <span>I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a></span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary">Create account</button>
+        </form>
+
+        <div class="divider">
+          <span>or sign up with</span>
+        </div>
+
+        <div class="social-login">
+          <button class="social-btn" onclick="socialSignup('google')">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+              <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+              <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/>
+              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+            </svg>
+            Google
+          </button>
+          <button class="social-btn" onclick="socialSignup('microsoft')">
+            <svg width="18" height="18" viewBox="0 0 23 23">
+              <path fill="#f25022" d="M0 0h11v11H0z"/>
+              <path fill="#00a4ef" d="M12 0h11v11H12z"/>
+              <path fill="#7fba00" d="M0 12h11v11H0z"/>
+              <path fill="#ffb900" d="M12 12h11v11H12z"/>
+            </svg>
+            Microsoft
+          </button>
+        </div>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="login.html" class="link">Sign in</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // API base helper and file:// warning
+    const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+    if (location.protocol === 'file:') {
+      const warn = document.createElement('div');
+      warn.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;padding:12px 16px;background:#fff4e5;border:1px solid #f2c97d;border-radius:8px;color:#8a6d3b;box-shadow:0 4px 12px rgba(0,0,0,0.08);z-index:9999;font-size:14px;';
+      warn.innerHTML = 'You opened this page via file://. Open <b>http://localhost:3000/signup.html</b> to avoid “Failed to fetch”.';
+      document.body.appendChild(warn);
+    }
+    // Initialize theme
+    const savedTheme = localStorage.getItem('xenoTheme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('xenoTheme', newTheme);
+      
+      const icon = document.querySelector('.theme-icon');
+      icon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+    }
+
+    // Initialize theme icon
+    const theme = document.documentElement.getAttribute('data-theme');
+    const icon = document.querySelector('.theme-icon');
+    if (icon) {
+      icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    }
+
+    function showToast(message, duration = 3000) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    // Password strength indicator
+    document.getElementById('password').addEventListener('input', function(e) {
+      const password = e.target.value;
+      const strengthBar = document.getElementById('passwordStrength');
+      
+      if (password.length === 0) {
+        strengthBar.innerHTML = '';
+        return;
+      }
+      
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (password.length >= 12) strength++;
+      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+      if (/\d/.test(password)) strength++;
+      if (/[^a-zA-Z\d]/.test(password)) strength++;
+      
+      const labels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+      const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#10b981'];
+      
+      strengthBar.innerHTML = `
+        <div style="display: flex; gap: 4px; margin-top: 8px;">
+          ${[0,1,2,3,4].map(i => `
+            <div style="flex: 1; height: 4px; border-radius: 2px; background: ${i < strength ? colors[strength-1] : 'var(--border)'}"></div>
+          `).join('')}
+        </div>
+        <span style="font-size: 11px; margin-top: 4px; display: block; color: ${colors[strength-1]}">${labels[strength-1] || ''}</span>
+      `;
+    });
+
+    async function handleSignup(event) {
+      event.preventDefault();
+      
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const company = document.getElementById('company').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
+
+      try {
+        console.log('Sending registration request...');
+        const requestBody = {
+          email,
+          password,
+          name: `${firstName} ${lastName}`,
+          companyName: company,
+          shopDomain: `${company.toLowerCase().replace(/\s+/g, '-')}.myshopify.com`
+        };
+        console.log('Request body:', requestBody);
+
+        const response = await fetch(`${API_BASE}/api/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed');
+        }
+
+        // Save JWT token and user data
+        localStorage.setItem('xenoToken', data.token);
+        localStorage.setItem('xenoUser', JSON.stringify(data.user));
+        
+        showToast('Account created successfully! Redirecting...');
+        
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 500);
+      } catch (error) {
+        console.error('Registration error:', error);
+        showToast('Error: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create account';
+      }
+    }
+
+    function socialSignup(provider) {
+      showToast(`Signing up with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`);
+      
+      // Simulate OAuth flow with demo data
+      setTimeout(() => {
+        const demoUsers = {
+          google: {
+            email: 'newuser@gmail.com',
+            name: 'Google User',
+            company: 'My Company',
+            role: 'admin',
+            provider: 'google'
+          },
+          microsoft: {
+            email: 'newuser@outlook.com',
+            name: 'Microsoft User',
+            company: 'My Company',
+            role: 'admin',
+            provider: 'microsoft'
+          }
+        };
+        
+        const user = demoUsers[provider];
+        user.createdAt = new Date().toISOString();
+        
+        localStorage.setItem('xenoUser', JSON.stringify(user));
+        
+        showToast(`Welcome ${user.name}! Account created successfully!`);
+        
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      }, 1000);
+    }
+
+    // Check if already logged in
+    const existingUser = localStorage.getItem('xenoUser');
+    if (existingUser) {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

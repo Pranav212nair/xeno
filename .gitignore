@@ -1,0 +1,8 @@
+﻿node_modules/
+.env
+.env.local
+*.log
+backend/prisma/dev.db
+backend/prisma/migrations/
+.vscode/
+.DS_Store

@@ -1,0 +1,258 @@
+// Prisma Schema for Xeno Multi-Tenant Marketing Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Multi-Tenancy: Each Shopify store is a tenant
+model Tenant {
+  id              String    @id @default(uuid())
+  shopDomain      String    @unique // mystore.myshopify.com
+  accessToken     String?   // Shopify access token (encrypted)
+  apiKey          String?
+  apiSecret       String?
+  companyName     String
+  email           String
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  customers       Customer[]
+  orders          Order[]
+  products        Product[]
+  campaigns       Campaign[]
+  segments        Segment[]
+  journeys        Journey[]
+  users           User[]
+  
+  @@index([shopDomain])
+}
+
+// Users who can access the dashboard
+model User {
+  id              String    @id @default(uuid())
+  tenantId        String
+  email           String    @unique
+  name            String
+  passwordHash    String
+  role            String    @default("marketer") // admin, marketer, viewer
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([email])
+}
+
+// Synced from Shopify Customers
+model Customer {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  shopifyCustomerId   String?   // Shopify customer ID
+  email               String
+  firstName           String?
+  lastName            String?
+  phone               String?
+  totalSpent          Float     @default(0)
+  ordersCount         Int       @default(0)
+  lifetimeValue       Float     @default(0)
+  lastOrderAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  // Lifecycle stage
+  lifecycle           String    @default("new") // new, active, at_risk, churned
+  
+  // Engagement
+  emailEngaged        Boolean   @default(false)
+  smsEngaged          Boolean   @default(false)
+  
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders              Order[]
+  segmentMembers      SegmentMember[]
+  
+  @@unique([tenantId, shopifyCustomerId])
+  @@index([tenantId])
+  @@index([email])
+  @@index([lifecycle])
+}
+
+// Synced from Shopify Orders
+model Order {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  shopifyOrderId      String?
+  customerId          String
+  orderNumber         String
+  totalPrice          Float
+  subtotalPrice       Float
+  totalTax            Float
+  currency            String    @default("INR")
+  financialStatus     String    // paid, pending, refunded, etc.
+  fulfillmentStatus   String?   // fulfilled, partial, unfulfilled
+  createdAt           DateTime
+  updatedAt           DateTime  @updatedAt
+  
+  // Attribution (which campaign drove this?)
+  campaignId          String?
+  
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer            Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  campaign            Campaign? @relation(fields: [campaignId], references: [id])
+  items               OrderItem[]
+  
+  @@unique([tenantId, shopifyOrderId])
+  @@index([tenantId])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id                  String    @id @default(uuid())
+  orderId             String
+  productId           String
+  variantId           String?
+  quantity            Int
+  price               Float
+  total               Float
+  
+  order               Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product             Product   @relation(fields: [productId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+// Synced from Shopify Products
+model Product {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  shopifyProductId    String?
+  title               String
+  description         String?
+  vendor              String?
+  productType         String?
+  price               Float
+  compareAtPrice      Float?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderItems          OrderItem[]
+  
+  @@unique([tenantId, shopifyProductId])
+  @@index([tenantId])
+}
+
+// Marketing Campaigns
+model Campaign {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  name                String
+  channel             String    // WhatsApp, Email, SMS, Push
+  status              String    @default("draft") // draft, live, paused, completed
+  segmentId           String?
+  
+  // Metrics
+  sent                Int       @default(0)
+  delivered           Int       @default(0)
+  opened              Int       @default(0)
+  clicked             Int       @default(0)
+  converted           Int       @default(0)
+  revenue             Float     @default(0)
+  cost                Float     @default(0)
+  
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segment             Segment?  @relation(fields: [segmentId], references: [id])
+  orders              Order[]
+  
+  @@index([tenantId])
+  @@index([status])
+}
+
+// Customer Segments
+model Segment {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  name                String
+  description         String?
+  type                String    @default("custom") // custom, lifecycle, behavioral
+  
+  // Filter criteria (stored as JSON string)
+  filters             String?
+  
+  customerCount       Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaigns           Campaign[]
+  members             SegmentMember[]
+  
+  @@index([tenantId])
+}
+
+model SegmentMember {
+  id                  String    @id @default(uuid())
+  segmentId           String
+  customerId          String
+  addedAt             DateTime  @default(now())
+  
+  segment             Segment   @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  customer            Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@unique([segmentId, customerId])
+  @@index([segmentId])
+  @@index([customerId])
+}
+
+// Customer Journeys
+model Journey {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  name                String
+  description         String?
+  status              String    @default("draft") // draft, active, paused
+  
+  // Journey steps (stored as JSON string)
+  steps               String?
+  
+  enrolledCount       Int       @default(0)
+  completedCount      Int       @default(0)
+  conversionRate      Float     @default(0)
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+}
+
+// Shopify Sync Status
+model SyncLog {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  resourceType        String    // customers, orders, products
+  status              String    // success, failed, in_progress
+  recordsProcessed    Int       @default(0)
+  errorMessage        String?
+  startedAt           DateTime  @default(now())
+  completedAt         DateTime?
+  
+  @@index([tenantId])
+  @@index([resourceType])
+}
